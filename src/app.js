@@ -3,14 +3,29 @@ import cookieParser from "cookie-parser";
 import session from "express-session";
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
-import sendEmail from "../services/mail.service.js";
+import sendEmail from "./config/services/mail.service.js";
 import authRouter from "./routes/auth.router.js";
-
+import morgan from "morgan";
+import cors from "cors";
 const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use(morgan("dev"));
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Requested-With",
+      "Accept",
+    ],
+  }),
+);
 
 app.use(
   session({

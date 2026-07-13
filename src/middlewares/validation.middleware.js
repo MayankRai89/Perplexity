@@ -17,6 +17,17 @@ export const registerValidationRules = [
     .withMessage("Password must be at least 6 characters long"),
 ];
 
+export const loginValidationRules = [
+  body("email")
+    .trim()
+    .isEmail()
+    .withMessage("Must be a valid email address")
+    .normalizeEmail(),
+  body("password")
+    .notEmpty()
+    .withMessage("Password is required"),
+];
+
 export const validate = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {

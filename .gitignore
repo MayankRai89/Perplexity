@@ -33,3 +33,15 @@ Thumbs.db
 # Agent/Developer temp files
 .agents/
 .gemini/
+
+# Temporary and log files
+temp.txt
+*.log
+*.tmp
+*.temp
+
+# Production builds
+dist/
+build/
+.next/
+out/
