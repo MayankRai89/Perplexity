@@ -1,14 +1,18 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { useAuth } from "../hook/useAuth";
+import { useChat } from "../../chat/hooks/useChat";
+import ConfirmModal from "../../chat/components/ConfirmModal";
 
 const Home = () => {
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const { user, handleLogout } = useAuth();
+  const { threads, deleteChat } = useChat();
   const [focusMode, setFocusMode] = useState("All");
   const [isFocusOpen, setIsFocusOpen] = useState(false);
   const [isPro, setIsPro] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState(null);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -109,6 +113,36 @@ const Home = () => {
               Library
             </a>
           </nav>
+
+          {/* Library Threads History List */}
+          {user && threads.length > 0 && (
+            <div className="flex flex-col gap-1.5 mt-2 border-t border-[#2d3131]/20 pt-4">
+              <div className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 px-3.5 mb-1">
+                Recent Threads
+              </div>
+              <div className="flex flex-col gap-0.5 max-h-56 overflow-y-auto px-1.5 no-scrollbar">
+                {threads.map((thread) => (
+                  <div key={thread._id} className="group flex items-center justify-between hover:bg-[#202222]/60 rounded-lg py-1.5 px-2 transition">
+                    <Link
+                      to={`/chat?id=${thread._id}`}
+                      className="text-xs text-slate-400 group-hover:text-white truncate flex-grow text-left pr-2"
+                    >
+                      {thread.title}
+                    </Link>
+                    <button
+                      onClick={() => setDeleteTargetId(thread._id)}
+                      className="text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition p-1 cursor-pointer shrink-0"
+                      title="Delete Thread"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Profile Section */}
@@ -318,6 +352,19 @@ const Home = () => {
           &copy; {new Date().getFullYear()} Perplexity Clone. Built with React & Tailwind.
         </footer>
       </div>
+
+      {/* Confirm Delete Thread Modal */}
+      <ConfirmModal
+        isOpen={!!deleteTargetId}
+        onClose={() => setDeleteTargetId(null)}
+        onConfirm={() => {
+          if (deleteTargetId) {
+            deleteChat(deleteTargetId);
+          }
+        }}
+        title="Delete Thread"
+        message="Are you sure you want to delete this thread? This will permanently erase the chat history from your Library."
+      />
     </div>
   );
 };

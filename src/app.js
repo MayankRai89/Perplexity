@@ -5,6 +5,7 @@ import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import sendEmail from "./config/services/mail.service.js";
 import authRouter from "./routes/auth.router.js";
+import chatRouter from "./routes/chat.router.js";
 import morgan from "morgan";
 import cors from "cors";
 const app = express();
@@ -38,6 +39,7 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 app.use("/api/auth", authRouter);
+app.use("/api/chat", chatRouter);
 
 passport.use(
   new GoogleStrategy(
