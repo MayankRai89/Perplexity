@@ -1,6 +1,8 @@
 import { createBrowserRouter } from "react-router";
 import Home from "../features/auth/pages/Home.jsx";
 import Chat from "../pages/Chat.jsx";
+import Discover from "../pages/Discover.jsx";
+import Library from "../pages/Library.jsx";
 import Login from "../features/auth/pages/Login.jsx";
 import Register from "../features/auth/pages/Register.jsx";
 import Protected from "../features/auth/components/protected.jsx";
@@ -22,6 +24,22 @@ const router = createBrowserRouter([
   {
     path: "/chat",
     element: <Chat />,
+  },
+  {
+    path: "/discover",
+    element: (
+      <Protected>
+        <Discover />
+      </Protected>
+    ),
+  },
+  {
+    path: "/library",
+    element: (
+      <Protected>
+        <Library />
+      </Protected>
+    ),
   },
   {
     path: "*",

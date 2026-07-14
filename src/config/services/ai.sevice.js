@@ -36,7 +36,6 @@ export default model;
 export async function testAImodel() {
   try {
     const response = await model.invoke("what is ai explain uder 100 words?");
-    console.log("response", response);
   } catch (error) {
     console.error("AI Model Test Failed:", error.message);
   }

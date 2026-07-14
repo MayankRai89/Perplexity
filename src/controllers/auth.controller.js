@@ -103,6 +103,8 @@ function renderVerificationPage(success, message) {
     ? `<svg style="width:64px;height:64px;color:#10b981" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`
     : `<svg style="width:64px;height:64px;color:#ef4444" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
 
+  const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+
   return `
     <!DOCTYPE html>
     <html lang="en">
@@ -190,7 +192,27 @@ function renderVerificationPage(success, message) {
           ${success ? "Verification Successful" : "Verification Failed"}
         </h1>
         <p>${message}</p>
-        <a href="/" class="btn">Go to Homepage</a>
+        <a href="${frontendUrl}" class="btn">Go to Homepage</a>
+        ${
+          success
+            ? `
+        <p style="font-size: 13px; color: #9ca3af; margin-top: 20px; margin-bottom: 0;">
+          Redirecting to home in <span id="countdown">3</span>s...
+        </p>
+        <script>
+          let count = 3;
+          const counter = setInterval(() => {
+            count--;
+            document.getElementById('countdown').textContent = count;
+            if (count <= 0) {
+              clearInterval(counter);
+              window.location.href = "${frontendUrl}";
+            }
+          }, 1000);
+        </script>
+        `
+            : ""
+        }
       </div>
     </body>
     </html>
@@ -233,11 +255,26 @@ export async function verifyEmail(req, res) {
         .send(renderVerificationPage(false, "No user account was found."));
     }
 
+    const loginToken = jwt.sign(
+      { id: user._id },
+      process.env.JWT_SECRET || "fallback_secret",
+      {
+        expiresIn: "1h",
+      },
+    );
+
+    res.cookie("token", loginToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 60 * 60 * 1000,
+    });
+
     if (user.verified) {
       return res.send(
         renderVerificationPage(
           true,
-          "Your email address is already verified. You can log in.",
+          "Your email address is already verified. You can access your account.",
         ),
       );
     }
@@ -277,7 +314,6 @@ export async function login(req, res) {
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
-    // Email verification check
     if (!user.verified) {
       return res.status(403).json({
         message: "Please verify your email address before logging in.",

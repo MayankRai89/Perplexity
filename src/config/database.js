@@ -1,4 +1,14 @@
 import mongoose from "mongoose";
+import dns from "dns";
+
+try {
+  dns.setServers(["8.8.8.8", "1.1.1.1"]);
+} catch (err) {
+  console.warn(
+    "Warning: Could not set custom DNS servers, using default OS resolver",
+    err.message,
+  );
+}
 
 const connectDb = async () => {
   try {
