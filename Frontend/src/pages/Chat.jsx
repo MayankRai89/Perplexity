@@ -112,9 +112,14 @@ const Chat = () => {
     isAiResponding,
     sendMessage,
     sendInitialQuery,
+    resetInitialQuery,
     threads,
     deleteChat,
   } = useChat(activeId);
+
+  // Find the title of the currently active thread for the header
+  const activeThread = threads.find((t) => t._id === (chatId || activeId));
+  const activeThreadTitle = activeThread?.title || null;
 
   const {
     isListening,
@@ -171,11 +176,15 @@ const Chat = () => {
     scrollToBottom();
   }, [messages, isAiResponding]);
 
+  // Only sync URL when the context chatId changes (e.g. after new chat is created).
+  // searchParams must NOT be a dep here — if it were, clicking a thread link would
+  // fire this effect with the stale context chatId and revert the URL, causing an
+  // endless chatId oscillation loop.
   useEffect(() => {
     if (chatId && searchParams.get("id") !== chatId) {
-      setSearchParams({ id: chatId });
+      setSearchParams({ id: chatId }, { replace: true });
     }
-  }, [chatId, searchParams, setSearchParams]);
+  }, [chatId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!loading && !user) {
@@ -186,9 +195,10 @@ const Chat = () => {
   useEffect(() => {
     const initialQuery = searchParams.get("q");
     if (initialQuery && user && !loading) {
+      resetInitialQuery();
       sendInitialQuery(initialQuery);
     }
-  }, [searchParams, user, loading]);
+  }, [searchParams.get("q"), user, loading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSend = (e) => {
     e.preventDefault();
@@ -265,7 +275,7 @@ const Chat = () => {
               <span className="text-slate-400 group-hover:text-white transition">
                 ➕
               </span>{" "}
-              New Thread
+              New Chat
             </span>
           </Link>
 
@@ -429,8 +439,8 @@ const Chat = () => {
                 />
               </svg>
             </Link>
-            <h2 className="text-sm font-semibold text-slate-300">
-              Thread Session
+            <h2 className="text-sm font-semibold text-slate-300 truncate max-w-[240px]" title={activeThreadTitle || undefined}>
+              {activeThreadTitle || (chatId || activeId ? "Generating title…" : "New Thread")}
             </h2>
           </div>
           <div className="flex items-center gap-3">

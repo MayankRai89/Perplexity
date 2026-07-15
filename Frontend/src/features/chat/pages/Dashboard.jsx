@@ -1,9 +1,9 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import { useChat } from "../hooks/useChat.js";
+import { useChatContext } from "../context/ChatContext.jsx";
 
 export default function Dashboard() {
-  const { isConnected } = useChat();
+  const { isConnected } = useChatContext();
   const user = useSelector((state) => state.auth.user);
   console.log(user);
   return (
