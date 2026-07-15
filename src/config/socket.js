@@ -3,10 +3,6 @@ import chatModel from "../models/chat.model.js";
 import messageModel from "../models/message.model.js";
 import aiModel from "./services/ai.sevice.js";
 
-/**
- * Generate a short, descriptive title for a chat thread.
- * Called only once — after the AI replies to the very first user message.
- */
 async function generateChatTitle(userMessage, aiReply) {
   try {
     const prompt = [
@@ -22,7 +18,10 @@ async function generateChatTitle(userMessage, aiReply) {
       ],
     ];
     const result = await aiModel.invoke(prompt);
-    const title = result.content.trim().replace(/^["']|["']$/g, "").substring(0, 60);
+    const title = result.content
+      .trim()
+      .replace(/^["']|["']$/g, "")
+      .substring(0, 60);
     return title || null;
   } catch {
     return null;
@@ -48,14 +47,14 @@ export const initSocket = (server) => {
       }
     });
 
-    // Handle user sending a message
     socket.on("userMessage", async ({ chatId, userId, content }) => {
       try {
-        console.log(`[Socket] userMessage received. chatId: ${chatId}, userId: ${userId}, content: "${content}"`);
+        console.log(
+          `[Socket] userMessage received. chatId: ${chatId}, userId: ${userId}, content: "${content}"`,
+        );
         let activeChatId = chatId;
         let isNewChat = false;
 
-        // If no chatId is provided, create a new Chat session
         if (!activeChatId) {
           isNewChat = true;
           const newChat = await chatModel.create({
@@ -65,11 +64,10 @@ export const initSocket = (server) => {
           activeChatId = newChat._id.toString();
           socket.join(activeChatId);
           console.log(`[Socket] Created new Chat thread: ${activeChatId}`);
-          // Let the client know a new chat session was created
+
           socket.emit("chatCreated", { chatId: activeChatId });
         }
 
-        // Save the user's message
         const userMsg = await messageModel.create({
           chat: activeChatId,
           content,
@@ -77,7 +75,6 @@ export const initSocket = (server) => {
         });
         console.log(`[Socket] Saved user message. Message ID: ${userMsg._id}`);
 
-        // Emit the saved user message back to the client
         socket.emit("messageSaved", {
           chatId: activeChatId,
           message: {
@@ -88,29 +85,33 @@ export const initSocket = (server) => {
           },
         });
 
-        // Retrieve chat history including the new message for context
         const history = await messageModel
           .find({ chat: activeChatId })
           .sort({ createdAt: 1 })
           .limit(20);
 
-        console.log(`[Socket] Found ${history.length} messages in chat history for thread: ${activeChatId}`);
+        console.log(
+          `[Socket] Found ${history.length} messages in chat history for thread: ${activeChatId}`,
+        );
 
         const promptMessages = [
-          ["system", "You are Perplexity, a helpful and precise AI search assistant. Answer concisely and use clear formatting (markdown)."],
+          [
+            "system",
+            "You are Perplexity, a helpful and precise AI search assistant. Answer concisely and use clear formatting (markdown).",
+          ],
           ...history.map((msg) => {
             const roleName = msg.role === "user" ? "human" : "ai";
             return [roleName, msg.content];
           }),
         ];
 
-        // Call Gemini AI model to get response
         console.log(`[Socket] Invoking Gemini model...`);
         const aiResponse = await aiModel.invoke(promptMessages);
         const aiText = aiResponse.content;
-        console.log(`[Socket] Gemini responded: "${aiText.substring(0, 60)}..."`);
+        console.log(
+          `[Socket] Gemini responded: "${aiText.substring(0, 60)}..."`,
+        );
 
-        // Save the AI's response
         const aiMsg = await messageModel.create({
           chat: activeChatId,
           content: aiText,
@@ -118,7 +119,6 @@ export const initSocket = (server) => {
         });
         console.log(`[Socket] Saved AI response. Message ID: ${aiMsg._id}`);
 
-        // Emit AI response back to the client
         socket.emit("aiResponse", {
           chatId: activeChatId,
           message: {
@@ -129,18 +129,19 @@ export const initSocket = (server) => {
           },
         });
 
-        // ── AI-generated title (only for new chats, runs async after response) ──
         if (isNewChat) {
           generateChatTitle(content, aiText).then(async (title) => {
             if (!title) return;
             try {
               await chatModel.findByIdAndUpdate(activeChatId, { title });
-              // Emit to the room so all connected clients update their sidebar
+
               io.to(activeChatId).emit("titleUpdated", {
                 chatId: activeChatId,
                 title,
               });
-              console.log(`[Socket] Title generated for ${activeChatId}: "${title}"`);
+              console.log(
+                `[Socket] Title generated for ${activeChatId}: "${title}"`,
+              );
             } catch (err) {
               console.error("[Socket] Failed to save generated title:", err);
             }
