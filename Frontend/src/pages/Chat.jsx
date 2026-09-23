@@ -41,7 +41,6 @@ const Chat = () => {
   const messagesEndRef = useRef(null);
   const [deleteTargetId, setDeleteTargetId] = useState(null);
 
-  // Collections/Folders State
   const [collections, setCollections] = useState([]);
   const [isOrganizeOpen, setIsOrganizeOpen] = useState(false);
 
@@ -117,10 +116,6 @@ const Chat = () => {
     deleteChat,
   } = useChat(activeId);
 
-  // Find the title of the currently active thread for the header
-  const activeThread = threads.find((t) => t._id === (chatId || activeId));
-  const activeThreadTitle = activeThread?.title || null;
-
   const {
     isListening,
     autoSpeak,
@@ -145,7 +140,6 @@ const Chat = () => {
 
   const prevResponding = useRef(false);
 
-  // Auto-speak new AI messages if autoSpeak is enabled
   useEffect(() => {
     if (
       prevResponding.current &&
@@ -161,7 +155,6 @@ const Chat = () => {
     prevResponding.current = isAiResponding;
   }, [isAiResponding, messages, autoSpeak]);
 
-  // Clean up speech on page unmount
   useEffect(() => {
     return () => {
       stopSpeaking();
@@ -176,15 +169,11 @@ const Chat = () => {
     scrollToBottom();
   }, [messages, isAiResponding]);
 
-  // Only sync URL when the context chatId changes (e.g. after new chat is created).
-  // searchParams must NOT be a dep here — if it were, clicking a thread link would
-  // fire this effect with the stale context chatId and revert the URL, causing an
-  // endless chatId oscillation loop.
   useEffect(() => {
     if (chatId && searchParams.get("id") !== chatId) {
-      setSearchParams({ id: chatId }, { replace: true });
+      setSearchParams({ id: chatId });
     }
-  }, [chatId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [chatId, searchParams, setSearchParams]);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -198,7 +187,7 @@ const Chat = () => {
       resetInitialQuery();
       sendInitialQuery(initialQuery);
     }
-  }, [searchParams.get("q"), user, loading]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [searchParams.get("q"), user, loading]);
 
   const handleSend = (e) => {
     e.preventDefault();
@@ -439,8 +428,8 @@ const Chat = () => {
                 />
               </svg>
             </Link>
-            <h2 className="text-sm font-semibold text-slate-300 truncate max-w-[240px]" title={activeThreadTitle || undefined}>
-              {activeThreadTitle || (chatId || activeId ? "Generating title…" : "New Thread")}
+            <h2 className="text-sm font-semibold text-slate-300">
+              Thread Session
             </h2>
           </div>
           <div className="flex items-center gap-3">

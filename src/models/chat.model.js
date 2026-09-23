@@ -12,6 +12,11 @@ const chatSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    space: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Space",
+      default: null,
+    },
   },
   {
     timestamps: true,

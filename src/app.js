@@ -8,6 +8,7 @@ import authRouter from "./routes/auth.router.js";
 import chatRouter from "./routes/chat.router.js";
 import discoverRouter from "./routes/discover.router.js";
 import collectionRouter from "./routes/collection.router.js";
+import ragRouter from "./routes/rag.router.js";
 import morgan from "morgan";
 import cors from "cors";
 const app = express();
@@ -44,6 +45,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/chat", chatRouter);
 app.use("/api/discover", discoverRouter);
 app.use("/api/collections", collectionRouter);
+app.use("/api/spaces", ragRouter);
 
 passport.use(
   new GoogleStrategy(

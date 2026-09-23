@@ -3,6 +3,7 @@ import Home from "../features/auth/pages/Home.jsx";
 import Chat from "../pages/Chat.jsx";
 import Discover from "../pages/Discover.jsx";
 import Library from "../pages/Library.jsx";
+import SpaceChat from "../pages/SpaceChat.jsx";
 import Login from "../features/auth/pages/Login.jsx";
 import Register from "../features/auth/pages/Register.jsx";
 import Protected from "../features/auth/components/protected.jsx";
@@ -38,6 +39,14 @@ const router = createBrowserRouter([
     element: (
       <Protected>
         <Library />
+      </Protected>
+    ),
+  },
+  {
+    path: "/space/:spaceId/chat",
+    element: (
+      <Protected>
+        <SpaceChat />
       </Protected>
     ),
   },
