@@ -4,8 +4,10 @@ import { useAuth } from "../features/auth/hook/useAuth";
 import axios from "axios";
 import ReactMarkdown from "react-markdown";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+
 const api = axios.create({
-  baseURL: "http://localhost:3000",
+  baseURL: API_BASE_URL,
   withCredentials: true,
 });
 
