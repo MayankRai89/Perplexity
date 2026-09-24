@@ -4,7 +4,7 @@ const messageSchema = new mongoose.Schema(
   {
     chat: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Chat",
+      ref: "PerplexityChat",
       required: true,
     },
     content: {
@@ -22,5 +22,5 @@ const messageSchema = new mongoose.Schema(
   },
 );
 
-const messageModel = mongoose.model("Message", messageSchema);
+const messageModel = mongoose.model("PerplexityMessage", messageSchema);
 export default messageModel;

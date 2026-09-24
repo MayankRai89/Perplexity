@@ -13,20 +13,23 @@ const collectionSchema = new mongoose.Schema(
     },
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "PerplexityUsers",
       required: true,
     },
     threads: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Chat",
+        ref: "PerplexityChats",
       },
     ],
   },
   {
     timestamps: true,
-  }
+  },
 );
 
-const collectionModel = mongoose.model("Collection", collectionSchema);
+const collectionModel = mongoose.model(
+  "PerplexityCollection",
+  collectionSchema,
+);
 export default collectionModel;

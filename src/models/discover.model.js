@@ -4,7 +4,7 @@ const discoverSchema = new mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "PerplexityUsers",
       required: true,
     },
     prompt: {
@@ -28,5 +28,5 @@ const discoverSchema = new mongoose.Schema(
   },
 );
 
-const discoverModel = mongoose.model("Discover", discoverSchema);
+const discoverModel = mongoose.model("PerplexityDiscover", discoverSchema);
 export default discoverModel;
