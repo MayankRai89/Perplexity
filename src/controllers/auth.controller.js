@@ -41,6 +41,10 @@ export async function register(req, res) {
     );
 
     const verificationLink = `${req.protocol}://${req.get("host")}/api/auth/verify-email?token=${emailVerifictionToken}`;
+    console.log("\n=======================================================");
+    console.log(`🔗 EMAIL VERIFICATION LINK FOR [${email}]:`);
+    console.log(verificationLink);
+    console.log("=======================================================\n");
 
     const emailHtml = `
       <div style="font-family: sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 8px;">
@@ -351,6 +355,7 @@ export async function login(req, res) {
     return res.status(500).json({ message: "Internal server error" });
   }
 }
+
 /**
  *@route GET/API/AUTH/GET-ME
  *@desc Get Current User Details

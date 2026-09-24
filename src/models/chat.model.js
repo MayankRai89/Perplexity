@@ -4,7 +4,7 @@ const chatSchema = new mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "PerplexityUsers",
       required: true,
     },
     title: {
@@ -14,7 +14,7 @@ const chatSchema = new mongoose.Schema(
     },
     space: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Space",
+      ref: "PerplexitySpace",
       default: null,
     },
   },
