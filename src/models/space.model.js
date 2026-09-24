@@ -14,7 +14,7 @@ const spaceSchema = new mongoose.Schema(
     },
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "PerplexityUsers",
       required: true,
     },
     documents: [
@@ -29,8 +29,8 @@ const spaceSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
-const spaceModel = mongoose.model("Space", spaceSchema);
+const spaceModel = mongoose.model("PerplexitySpace", spaceSchema);
 export default spaceModel;
