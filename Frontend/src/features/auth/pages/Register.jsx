@@ -4,7 +4,7 @@ import { useAuth } from "../hook/useAuth";
 
 const Register = () => {
   const navigate = useNavigate();
-  const { user, loading } = useAuth();
+  const { handleRegister, user, loading } = useAuth();
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -55,25 +55,17 @@ const Register = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username: formData.username,
-          email: formData.email,
-          password: formData.password,
-        }),
+      const result = await handleRegister({
+        username: formData.username,
+        email: formData.email,
+        password: formData.password,
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Something went wrong during registration.");
+      if (!result.success) {
+        throw new Error(result.error || "Something went wrong during registration.");
       }
 
-      setSuccessMessage(data.message || "Registration successful! Please check your email to verify your account.");
+      setSuccessMessage(result.message || "Registration successful! Please check your email to verify your account.");
       setFormData({
         username: "",
         email: "",
